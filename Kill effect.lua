@@ -13,11 +13,13 @@ local worldToScreen = client.world_to_screen
 local combobox = ui.new_combobox
 local randomFloat = client.random_float
 local rectangle = renderer.rectangle
+local text = renderer.text
 ----------------------------------------------------------------------------------------------------------------------------------
 
 local enable = checkbox("Visuals", "Effects", "Kill effect")
 local color = colorpicker("Visuals", "Effects", "Color", 255, 255, 255, 255)
-local style = combobox("Visuals", "Effects", "Style", "Circle up", "Circle down", "Circle", "Skull")
+local reverse = checkbox("Visuals", "Effects", "Reverse direction")
+local style = combobox("Visuals", "Effects", "Style", "Circle", "Skull", "gamesense logo", "gamesense simple")
 local time = slider("Visuals", "Effects", "Duration", 1, 10, 2, true, "s")
 local speed = slider("Visuals", "Effects", "Speed", 0, 100, 50, true, "%")
 local radius = slider("Visuals", "Effects", "radius", 0, 81, 25, true, "px")
@@ -78,20 +80,21 @@ local function on_paint(ctx)
     if getui(enable) then
     	visibility(style, true)
         visibility(color, true)
+        visibility(reverse, true)
         visibility(time, true)
         visibility(speed, true)
         visibility(radius, true)
 
-        if getui(style) == "Circle" or getui(style) == "Skull" then
+        if getui(style) == "Circle" or getui(style) == "Skull" or getui(style) == "gamesense logo" or getui(style) == "gamesense simple" then
         	visibility(pos, true)
         else
         	visibility(pos, false)
         end
 
-        if getui(style) ~= "Skull" then
-        	visibility(radius, true)
-        else
+        if getui(style) == "Skull" or getui(style) == "gamesense logo" or getui(style) == "gamesense simple" then
         	visibility(radius, false)
+        else
+        	visibility(radius, true)
         end
 
         for i = 1, #killTable do
@@ -103,16 +106,15 @@ local function on_paint(ctx)
                 local x, y = worldToScreen(ctx, killTable[i][1], killTable[i][2], killTable[i][3])
 
                 if x ~= nil then
-                	if getui(style) == "Circle up" then
-	                    DrawCircle3D(ctx, posX, posY, posZ, getui(radius), r, g, b, a, 3)
-
-	                    posZ = posZ + getui(speed) / 100
-                    elseif getui(style) == "Circle down" then
-                    	DrawCircle3D(ctx, posX, posY, posZ + 80, getui(radius), r, g, b, a, 3)
-
-                    	posZ = posZ - getui(speed) / 100
-                	elseif getui(style) == "Circle" then
+                	if getui(style) == "Circle" then
 	                    DrawCircle3D(ctx, posX, posY, posZ + getui(pos), getui(radius), r, g, b, a, 3)
+
+	                    if getui(reverse, true) then
+	                    	posZ = posZ - getui(speed) / 100
+	                    else
+	                    	posZ = posZ + getui(speed) / 100
+	                    end
+
 	                elseif getui(style) == "Skull" then
 	                	local h = getui(pos)
 	                	local x, y = worldToScreen(ctx, killTable[i][1], killTable[i][2], killTable[i][3])
@@ -142,8 +144,37 @@ local function on_paint(ctx)
 	                	rectangle(x - 2, y + h + 36, 9, 3, r, g, b, a)
 	                	rectangle(x + 1, y + h + 33, 3, 3, r, g, b, a)
 
+	                	if getui(reverse, true) then
+               				killTable[i][3] = killTable[i][3] - getui(speed) / 100
+	                	else
+               				killTable[i][3] = killTable[i][3] + getui(speed) / 100
+               			end
 
-               			killTable[i][3] = killTable[i][3] + getui(speed) / 100
+               		elseif getui(style) == "gamesense logo" then
+	                	local h = getui(pos)
+	                	local x, y = worldToScreen(ctx, killTable[i][1], killTable[i][2], killTable[i][3])
+
+               			text(x - 35, y + h, 255, 255, 255, 255, "c+", 0, "game")
+               			text(x + 35, y + h, 108, 195, 18, 255, "c+", 0, "sense")
+
+               			if getui(reverse, true) then
+               				killTable[i][3] = killTable[i][3] - getui(speed) / 100
+	                	else
+               				killTable[i][3] = killTable[i][3] + getui(speed) / 100
+               			end
+
+               		elseif getui(style) == "gamesense simple" then
+               			local h = getui(pos)
+	                	local x, y = worldToScreen(ctx, killTable[i][1], killTable[i][2], killTable[i][3])
+
+               			text(x - 8, y + h, 255, 255, 255, 255, "c+", 0, "G")
+               			text(x + 8, y + h, 108, 195, 18, 255, "c+", 0, "S")
+
+               			if getui(reverse, true) then
+               				killTable[i][3] = killTable[i][3] - getui(speed) / 100
+	                	else
+               				killTable[i][3] = killTable[i][3] + getui(speed) / 100
+               			end
 	                end
                 end
             end
@@ -151,6 +182,7 @@ local function on_paint(ctx)
     else
     	visibility(style, false)
         visibility(color, false)
+        visibility(reverse, false)
         visibility(time, false)
         visibility(speed, false)
         visibility(radius, false)
