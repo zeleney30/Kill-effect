@@ -19,6 +19,8 @@ local text = renderer.text
 local enable = checkbox("Visuals", "Effects", "Kill effect")
 local color = colorpicker("Visuals", "Effects", "Color", 255, 255, 255, 255)
 local reverse = checkbox("Visuals", "Effects", "Reverse direction")
+local rainbow = checkbox("Visuals", "Effects", "Rainbow")
+local rspeed = slider("Visuals", "Effects", "Speed", 1, 25, 5, true)
 local style = combobox("Visuals", "Effects", "Style", "Circle", "Skull", "gamesense logo", "gamesense simple")
 local time = slider("Visuals", "Effects", "Duration", 1, 10, 2, true, "s")
 local speed = slider("Visuals", "Effects", "Speed", 0, 100, 50, true, "%")
@@ -74,16 +76,29 @@ end
 callback('round_prestart', on_round_prestart)
 ----------------------------------------------------------------------------------------------------------------------------------
 
-local function on_paint(ctx)
-	local r, g, b, a = getui(color)
+local chroma = 0
 
+local function on_paint(ctx)
     if getui(enable) then
     	visibility(style, true)
         visibility(color, true)
         visibility(reverse, true)
+        visibility(rainbow, true)
         visibility(time, true)
         visibility(speed, true)
         visibility(radius, true)
+
+        if getui(rainbow, true) then
+        	visibility(rspeed, true)
+
+        	local rspeed = ui.get(rspeed)
+    		r = math.floor(math.sin(globals.realtime() * rspeed) * 127.5 + 127.5)
+    		g = math.floor(math.sin(globals.realtime() * rspeed + 2) * 127.5 + 127.5)
+    		b = math.floor(math.sin(globals.realtime() * rspeed + 4) * 127.5 + 127.5)
+        else
+        	visibility(rspeed, false)
+			r, g, b, a = getui(color)
+        end
 
         if getui(style) == "Circle" or getui(style) == "Skull" or getui(style) == "gamesense logo" or getui(style) == "gamesense simple" then
         	visibility(pos, true)
@@ -183,6 +198,8 @@ local function on_paint(ctx)
     	visibility(style, false)
         visibility(color, false)
         visibility(reverse, false)
+        visibility(rainbow, false)
+        visibility(rspeed, false)
         visibility(time, false)
         visibility(speed, false)
         visibility(radius, false)
