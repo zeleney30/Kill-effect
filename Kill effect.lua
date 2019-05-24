@@ -14,6 +14,7 @@ local combobox = ui.new_combobox
 local randomFloat = client.random_float
 local rectangle = renderer.rectangle
 local text = renderer.text
+local textbox = ui.new_textbox
 ----------------------------------------------------------------------------------------------------------------------------------
 
 local enable = checkbox("Visuals", "Effects", "Kill effect")
@@ -21,11 +22,12 @@ local color = colorpicker("Visuals", "Effects", "Color", 255, 255, 255, 255)
 local reverse = checkbox("Visuals", "Effects", "Reverse direction")
 local rainbow = checkbox("Visuals", "Effects", "Rainbow")
 local rspeed = slider("Visuals", "Effects", "Speed", 1, 25, 5, true)
-local style = combobox("Visuals", "Effects", "Style", "Circle", "Skull", "gamesense logo", "gamesense simple")
+local style = combobox("Visuals", "Effects", "Style", "Circle", "Skull", "gamesense logo", "gamesense simple", "Custom text")
 local time = slider("Visuals", "Effects", "Duration", 1, 10, 2, true, "s")
 local speed = slider("Visuals", "Effects", "Speed", 0, 100, 50, true, "%")
 local radius = slider("Visuals", "Effects", "radius", 0, 81, 25, true, "px")
 local pos = slider("Visuals", "Effects", "Position", 0, 80, 40, true)
+local ctext = textbox("Visuals", "Effects", "Custom text")
 ----------------------------------------------------------------------------------------------------------------------------------
 
 local math_rad, math_cos, math_sin = math.rad, math.cos, math.sin
@@ -81,29 +83,31 @@ local chroma = 0
 local function on_paint(ctx)
     if getui(enable) then
     	visibility(style, true)
-        visibility(color, true)
-        visibility(reverse, true)
-        visibility(rainbow, true)
-        visibility(time, true)
-        visibility(speed, true)
-        visibility(radius, true)
+      visibility(color, true)
+      visibility(reverse, true)
+      visibility(rainbow, true)
+      visibility(time, true)
+      visibility(speed, true)
+      visibility(radius, true)
 
         if getui(rainbow, true) then
         	visibility(rspeed, true)
 
-        	local rspeed = ui.get(rspeed)
-    		r = math.floor(math.sin(globals.realtime() * rspeed) * 127.5 + 127.5)
-    		g = math.floor(math.sin(globals.realtime() * rspeed + 2) * 127.5 + 127.5)
-    		b = math.floor(math.sin(globals.realtime() * rspeed + 4) * 127.5 + 127.5)
-        else
-        	visibility(rspeed, false)
-			r, g, b, a = getui(color)
+          local rspeed = ui.get(rspeed)
+        		r = math.floor(math.sin(globals.realtime() * rspeed) * 127.5 + 127.5)
+        		g = math.floor(math.sin(globals.realtime() * rspeed + 2) * 127.5 + 127.5)
+        		b = math.floor(math.sin(globals.realtime() * rspeed + 4) * 127.5 + 127.5)
+          else
+            visibility(rspeed, false)
+  			    r, g, b, a = getui(color)
         end
 
         if getui(style) == "Circle" or getui(style) == "Skull" or getui(style) == "gamesense logo" or getui(style) == "gamesense simple" then
         	visibility(pos, true)
+          visibility(ctext, false)
         else
         	visibility(pos, false)
+          visibility(ctext, true)
         end
 
         if getui(style) == "Skull" or getui(style) == "gamesense logo" or getui(style) == "gamesense simple" then
@@ -190,12 +194,24 @@ local function on_paint(ctx)
 	                	else
                				killTable[i][3] = killTable[i][3] + getui(speed) / 100
                			end
+                  elseif getui(style) == "Custom text" then
+                    local h = getui(pos)
+                    local x, y = worldToScreen(ctx, killTable[i][1], killTable[i][2], killTable[i][3])
+                    local r, g, b, a = getui(color)
+
+                    text(x, y, r, g, b, a, "c+", 0, getui(ctext))
+
+                    if getui(reverse, true) then
+                      killTable[i][3] = killTable[i][3] - getui(speed) / 100
+                    else
+                      killTable[i][3] = killTable[i][3] + getui(speed) / 100
+                    end
 	                end
                 end
             end
         end
     else
-    	visibility(style, false)
+    	  visibility(style, false)
         visibility(color, false)
         visibility(reverse, false)
         visibility(rainbow, false)
@@ -204,6 +220,7 @@ local function on_paint(ctx)
         visibility(speed, false)
         visibility(radius, false)
         visibility(pos, false)
+        visibility(ctext, false)
     end
 end
 
