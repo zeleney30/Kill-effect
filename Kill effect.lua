@@ -173,8 +173,8 @@ local function on_paint(ctx)
 	                	local h = getui(pos)
 	                	local x, y = worldToScreen(ctx, killTable[i][1], killTable[i][2], killTable[i][3])
 
-               			text(x - 35, y + h, 255, 255, 255, 255, "c+", 0, "game")
-               			text(x + 35, y + h, 108, 195, 18, 255, "c+", 0, "sense")
+               			text(x - 30, y + h, 255, 255, 255, 255, "c+", 0, "game")
+               			text(x + 30, y + h, 108, 195, 18, 255, "c+", 0, "sense")
 
                			if getui(reverse, true) then
                				killTable[i][3] = killTable[i][3] - getui(speed) / 100
